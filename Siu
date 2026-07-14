@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Grade Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white p-4">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-xl font-bold mb-4">Τα Μαθήματά μου</h1>
+        
+        <!-- Επιλογή Ταξινόμησης -->
+        <select id="sortOrder" onchange="render()" class="w-full bg-gray-800 p-2 rounded mb-4">
+            <option value="all">Όλα μαζί</option>
+            <option value="1">1ο Εξάμηνο</option>
+            <option value="2">2ο Εξάμηνο</option>
+            <!-- Προσθέτεις όσα εξάμηνα θέλεις -->
+        </select>
+
+        <div id="results" class="space-y-2"></div>
+    </div>
+
+    <script>
+        // ΕΔΩ ΒΑΖΕΙΣ ΤΗ ΛΙΣΤΑ ΣΟΥ
+        const grades = [
+            { name: "Μαθηματικά Ι", grade: 6.0, sem: 1 },
+            { name: "Μηχανική Ι", grade: 2.3, sem: 1 },
+            { name: "Θερμοδυναμική Ι", grade: 5.0, sem: 2 }
+        ];
+
+        function render() {
+            const filter = document.getElementById('sortOrder').value;
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+
+            grades.forEach(item => {
+                if (filter !== 'all' && item.sem != filter) return;
+
+                const color = item.grade >= 5 ? 'text-green-400' : 'text-red-500';
+                container.innerHTML += `
+                    <div class="bg-gray-900 p-3 rounded-lg flex justify-between border border-gray-800">
+                        <span>${item.name}</span>
+                        <span class="font-bold ${color}">${item.grade.toFixed(1)}</span>
+                    </div>`;
+            });
+        }
+        render();
+    </script>
+</body>
+</html>
