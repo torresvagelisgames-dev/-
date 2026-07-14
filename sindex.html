@@ -1,0 +1,245 @@
+html
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyUniGrades - UniverSIS Style</title>
+    <!-- Σταθερό Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-10 px-4 py-4 shadow-sm shadow-slate-900/50">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-indigo-500/30">
+                    U
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight">UniverSIS <span class="text-[10px] font-bold text-indigo-300 bg-indigo-900/50 px-2 py-0.5 rounded-full ml-1 uppercase">App</span></h1>
+                    <p class="text-xs text-slate-400 font-medium">Πίνακας Νέων Βαθμών</p>
+                </div>
+            </div>
+            <button onclick="resetApp()" class="text-xs text-slate-500 bg-slate-800 px-3 py-1.5 rounded-lg font-medium active:scale-95 transition-all">Καθαρισμός</button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- Input Section -->
+        <div id="inputSection" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 shadow-md">
+            <h2 class="text-sm font-semibold text-slate-200 mb-2 flex items-center gap-2">
+                <span>📥</span> Επικόλληση Δεδομένων
+            </h2>
+            <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                Επίλεξε όλα τα μαθήματα από το φοιτητολόγιο (Ctrl+A / Copy) και κάνε τα επικόλληση παρακάτω.
+            </p>
+            <textarea 
+                id="rawInput" 
+                rows="5" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-200 placeholder-slate-600 transition-all"
+                placeholder="Επικόλληση εδώ..."
+            ></textarea>
+            <button 
+                onclick="processGrades()" 
+                class="w-full mt-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all flex justify-center items-center gap-2"
+            >
+                <span>✨</span> Μεταμόρφωση Βαθμών
+            </button>
+        </div>
+
+        <!-- Filters Section -->
+        <div id="filterSection" class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 hidden space-y-3">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Προβολή ανά:</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="changeView('all')" id="btn-all" class="view-btn bg-indigo-600 text-white text-xs font-semibold py-2.5 px-2 rounded-xl transition-all shadow-md shadow-indigo-600/20">Όλα Μαζί</button>
+                <button onclick="changeView('semester')" id="btn-semester" class="view-btn bg-slate-800 text-slate-300 text-xs font-semibold py-2.5 px-2 rounded-xl transition-all">Εξάμηνο</button>
+                <button onclick="changeView('period')" id="btn-period" class="view-btn bg-slate-800 text-slate-300 text-xs font-semibold py-2.5 px-2 rounded-xl transition-all">Εξεταστική</button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div id="gradesContainer" class="hidden pb-8">
+            <div id="dynamicGroups" class="space-y-6"></div>
+        </div>
+
+    </main>
+
+    <script>
+        let allCourses = [];
+        let currentView = 'all';
+
+        function processGrades() {
+            try {
+                const input = document.getElementById('rawInput').value;
+                
+                if (!input || input.trim() === '') {
+                    alert('Το πεδίο είναι άδειο. Κάνε επικόλληση (Paste) τους βαθμούς σου.');
+                    return;
+                }
+
+                const lines = input.split('\n');
+                allCourses = [];
+                let currentSemester = "Unknown";
+
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return;
+
+                    // Ασφαλής ανίχνευση Εξαμήνου
+                    if (trimmed.includes(':') && trimmed.length < 25) {
+                        const parts = trimmed.split(':');
+                        if (parts.length > 1 && parts[1].trim().length <= 4) {
+                            currentSemester = parts[1].trim();
+                            return;
+                        }
+                    }
+
+                    // Regex Ασφαλείας για Βαθμό, Περίοδο και Κωδικό
+                    const gradeRegex = /(\d{1,2}[.,]\d{1,2}|\d{1,2})\s+(ΕΣ\d[\s\S]*?\d{4}-\d{4})/;
+                    const codeRegex = /([A-ZΑ-Ω]{2}\d{3}[A-ZΑ-Ω]?\d{0,2})/;
+                    
+                    const gradeMatch = trimmed.match(gradeRegex);
+                    const codeMatch = trimmed.match(codeRegex);
+
+                    if (gradeMatch && codeMatch) {
+                        const gradeStr = gradeMatch[1];
+                        const period = gradeMatch[2].trim();
+                        const code = codeMatch[1];
+                        
+                        // Μετατροπή κόμματος σε τελεία για τα μαθηματικά της JS
+                        const numericGrade = parseFloat(gradeStr.replace(',', '.'));
+
+                        // Ασφαλής καθαρισμός τίτλου
+                        let title = trimmed.replace(code, '').replace(gradeMatch[0], '').trim();
+                        title = title.split('\t')[0].trim();
+
+                        allCourses.push({
+                            code: code,
+                            title: title,
+                            grade: gradeStr,
+                            numericGrade: numericGrade,
+                            semester: currentSemester,
+                            period: period
+                        });
+                    }
+                });
+
+                if (allCourses.length > 0) {
+                    document.getElementById('inputSection').classList.add('hidden');
+                    document.getElementById('filterSection').classList.remove('hidden');
+                    document.getElementById('gradesContainer').classList.remove('hidden');
+                    renderGrades();
+                } else {
+                    alert('Δεν εντοπίστηκαν βαθμοί. Δοκίμασε να κάνεις αντιγραφή (Copy) όλη τη σελίδα.');
+                }
+            } catch (error) {
+                console.error("Σφάλμα Javascript:", error);
+                alert('Κάτι πήγε στραβά κατά την ανάγνωση των δεδομένων. Δοκίμασε ξανά.');
+            }
+        }
+
+        function changeView(view) {
+            currentView = view;
+            
+            // Ενημέρωση UI κουμπιών
+            const allBtns = document.querySelectorAll('.view-btn');
+            for(let i=0; i < allBtns.length; i++) {
+                allBtns[i].classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+                allBtns[i].classList.add('bg-slate-800', 'text-slate-300');
+            }
+            
+            const activeBtn = document.getElementById('btn-' + view);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+            }
+            
+            renderGrades();
+        }
+
+        function renderGrades() {
+            const container = document.getElementById('dynamicGroups');
+            container.innerHTML = '';
+
+            if (currentView === 'all') {
+                createGroupMarkup(container, `Όλα τα Μαθήματα (${allCourses.length})`, allCourses);
+            } 
+            else if (currentView === 'semester') {
+                const groups = groupBy(allCourses, 'semester');
+                for (const sem in groups) {
+                    createGroupMarkup(container, `Εξάμηνο: ${sem}`, groups[sem]);
+                }
+            } 
+            else if (currentView === 'period') {
+                const groups = groupBy(allCourses, 'period');
+                for (const per in groups) {
+                    createGroupMarkup(container, `Εξεταστική: ${per}`, groups[per]);
+                }
+            }
+        }
+
+        function createGroupMarkup(parentContainer, groupTitle, coursesList) {
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = "space-y-3";
+            groupWrapper.innerHTML = `
+                <div class="flex items-center justify-between px-1 mt-6 border-b border-slate-800 pb-2">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">${groupTitle}</h2>
+                </div>
+                <div class="cards-wrapper space-y-3"></div>
+            `;
+
+            const listContainer = groupWrapper.querySelector('.cards-wrapper');
+
+            coursesList.forEach(course => {
+                const card = document.createElement('div');
+                const isPassed = course.numericGrade >= 5.0;
+                
+                const cardStyle = isPassed 
+                    ? "bg-emerald-900/10 border-emerald-500/20" 
+                    : "bg-rose-900/10 border-rose-500/20";
+                    
+                const badgeStyle = isPassed 
+                    ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 shadow-emerald-500/10" 
+                    : "text-rose-400 bg-rose-500/10 border border-rose-500/20 shadow-rose-500/10";
+
+                card.className = `${cardStyle} border rounded-2xl p-4 flex items-center justify-between shadow-sm`;
+                card.innerHTML = `
+                    <div class="flex-1 pr-4">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500 block mb-0.5">${course.code}</span>
+                        <h3 class="text-sm font-semibold text-slate-100 leading-snug">${course.title}</h3>
+                        <span class="text-[10px] font-medium text-slate-400 mt-1 inline-block bg-slate-800/80 px-2 py-0.5 rounded-md">${course.period.split(' ')[0]}</span>
+                    </div>
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl text-lg font-bold shrink-0 shadow-sm ${badgeStyle}">
+                        ${course.grade}
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+            parentContainer.appendChild(groupWrapper);
+        }
+
+        function groupBy(array, key) {
+            return array.reduce((res, val) => {
+                (res[val[key]] = res[val[key]] || []).push(val);
+                return res;
+            }, {});
+        }
+
+        function resetApp() {
+            document.getElementById('rawInput').value = '';
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('filterSection').classList.add('hidden');
+            document.getElementById('gradesContainer').classList.add('hidden');
+            allCourses = [];
+            changeView('all');
+        }
+    </script>
+</body>
+</html>
