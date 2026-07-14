@@ -1,40 +1,40 @@
-                <!DOCTYPE html>
+             <!DOCTYPE html>
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <title>MyUniGrades</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeParser</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white p-4">
+<body class="bg-gray-900 text-white p-4">
     <div class="max-w-md mx-auto">
-        <textarea id="rawInput" rows="10" class="w-full bg-slate-800 p-4 rounded-xl mb-4 text-sm" placeholder="Επικόλληση εδώ (π.χ. Υβριδικά Συστήματα 7,8)..."></textarea>
-        <button onclick="processGrades()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold">Μεταμόρφωση</button>
+        <textarea id="rawInput" rows="10" class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white" placeholder="Επικόλληση εδώ..."></textarea>
+        <button onclick="parse()" class="w-full mt-4 bg-blue-600 py-4 rounded-xl font-bold">Μεταμόρφωση</button>
         <div id="results" class="mt-6 space-y-2"></div>
     </div>
 
     <script>
-        function processGrades() {
+        function parse() {
             const input = document.getElementById('rawInput').value;
             const lines = input.split('\n');
             const container = document.getElementById('results');
             container.innerHTML = '';
-
+            
             lines.forEach(line => {
-                // Ψάχνει για έναν αριθμό (με κόμμα ή τελεία) μέσα στη γραμμή
-                const gradeMatch = line.match(/(\d{1,2}[.,]\d{1,2}|\d{1,2})/);
-
-                if (gradeMatch) {
-                    const grade = gradeMatch[0];
-                    // Ο τίτλος είναι ό,τι περισσεύει αφού βγάλουμε τον αριθμό
-                    const title = line.replace(grade, '').replace(/[^\w\sα-ωΑ-Ω]/g, '').trim();
+                if (line.trim() === '') return;
+                
+                // Ψάχνει για οποιονδήποτε αριθμό με κόμμα ή τελεία
+                const match = line.match(/(\d{1,2}[.,]\d{1,2}|\d{1,2})/);
+                
+                if (match) {
+                    const grade = match[0];
+                    const title = line.replace(grade, '').trim();
                     
-                    if (title.length > 2) {
-                        container.innerHTML += `
-                            <div class="bg-slate-800 p-3 rounded-lg flex justify-between">
-                                <span>${title}</span>
-                                <span class="font-bold text-indigo-400">${grade}</span>
-                            </div>`;
-                    }
+                    container.innerHTML += `
+                        <div class="bg-gray-800 p-4 rounded-lg flex justify-between border border-gray-700">
+                            <span>${title}</span>
+                            <span class="font-bold text-blue-400">${grade}</span>
+                        </div>`;
                 }
             });
         }
