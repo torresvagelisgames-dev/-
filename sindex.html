@@ -81,8 +81,8 @@ html
                         currentSemester = trimmed.replace("Εξάμηνο:", "").trim();
                         return;
                     }
+const gradeRegex = /(\d{1,2}[.,]\d{1,2}|\d{1,2})\s+(E[A-Z0-9Α-ΩΞΣ]*)/;
 
-                    const gradeRegex = /(\d{1,2}[.,]\d{1,2}|\d{1,2})\s+(E[ΣΞ]\d[\s\S]*?\d{4}-\d{4})/;
                     const codeRegex = /([A-ZΑ-Ω]{2}\d{3}[A-ZΑ-Ω]?\d{0,2})/;
                     
                     const gradeMatch = trimmed.match(gradeRegex);
