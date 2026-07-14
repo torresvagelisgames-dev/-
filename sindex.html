@@ -1,14 +1,13 @@
-             <!DOCTYPE html>
+          <!DOCTYPE html>
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GradeParser</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white p-4">
     <div class="max-w-md mx-auto">
-        <textarea id="rawInput" rows="10" class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white" placeholder="Επικόλληση εδώ..."></textarea>
+        <textarea id="rawInput" rows="10" class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white"></textarea>
         <button onclick="parse()" class="w-full mt-4 bg-blue-600 py-4 rounded-xl font-bold">Μεταμόρφωση</button>
         <div id="results" class="mt-6 space-y-2"></div>
     </div>
@@ -23,8 +22,8 @@
             lines.forEach(line => {
                 if (line.trim() === '') return;
                 
-                // Ψάχνει για οποιονδήποτε αριθμό με κόμμα ή τελεία
-                const match = line.match(/(\d{1,2}[.,]\d{1,2}|\d{1,2})/);
+                // Δοκιμάζουμε να βρούμε οτιδήποτε μοιάζει με νούμερο (ακόμα και με κόμμα ή τελεία)
+                const match = line.match(/(\d+[\.,]\d+|\d+)/);
                 
                 if (match) {
                     const grade = match[0];
@@ -35,6 +34,8 @@
                             <span>${title}</span>
                             <span class="font-bold text-blue-400">${grade}</span>
                         </div>`;
+                } else {
+                    console.log("Δεν βρήκα νούμερο στη γραμμή: " + line);
                 }
             });
         }
