@@ -1,4 +1,4 @@
-          <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="el">
 <head>
     <meta charset="UTF-8">
@@ -7,38 +7,31 @@
 </head>
 <body class="bg-gray-900 text-white p-4">
     <div class="max-w-md mx-auto">
-        <textarea id="rawInput" rows="10" class="w-full bg-gray-800 p-4 rounded-xl border border-gray-700 text-white"></textarea>
-        <button onclick="parse()" class="w-full mt-4 bg-blue-600 py-4 rounded-xl font-bold">Μεταμόρφωση</button>
+        <textarea id="rawInput" rows="5" class="w-full bg-gray-800 p-4 rounded-xl text-white">Μαθηματικά 6,0</textarea>
+        <!-- Αλλάζουμε το κουμπί για να είμαστε σίγουροι -->
+        <button id="btn" class="w-full mt-4 bg-red-600 py-4 rounded-xl font-bold">ΜΕΤΑΜΟΡΦΩΣΗ ΤΩΡΑ</button>
         <div id="results" class="mt-6 space-y-2"></div>
     </div>
 
     <script>
-        function parse() {
+        document.getElementById('btn').onclick = function() {
             const input = document.getElementById('rawInput').value;
-            const lines = input.split('\n');
             const container = document.getElementById('results');
             container.innerHTML = '';
             
+            // Απλή ανίχνευση: βρίσκει οτιδήποτε έχει νούμερο
+            const lines = input.split('\n');
             lines.forEach(line => {
-                if (line.trim() === '') return;
-                
-                // Δοκιμάζουμε να βρούμε οτιδήποτε μοιάζει με νούμερο (ακόμα και με κόμμα ή τελεία)
-                const match = line.match(/(\d+[\.,]\d+|\d+)/);
-                
+                const match = line.match(/(\d+)/);
                 if (match) {
                     const grade = match[0];
                     const title = line.replace(grade, '').trim();
-                    
-                    container.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-lg flex justify-between border border-gray-700">
-                            <span>${title}</span>
-                            <span class="font-bold text-blue-400">${grade}</span>
-                        </div>`;
+                    container.innerHTML += `<div class="bg-gray-800 p-4 rounded-lg flex justify-between">${title} - ${grade}</div>`;
                 } else {
-                    console.log("Δεν βρήκα νούμερο στη γραμμή: " + line);
+                    alert('Δεν βρήκα νούμερο στη γραμμή: ' + line);
                 }
             });
-        }
+        };
     </script>
 </body>
 </html>
