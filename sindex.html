@@ -64,7 +64,7 @@ html
             document.body.className = colorClass + " text-slate-100 min-h-screen pb-12";
         }
 
-        function processGrades() {
+                 function processGrades() {
             try {
                 const input = document.getElementById('rawInput').value;
                 if (!input || input.trim() === '') return;
@@ -81,6 +81,41 @@ html
                         currentSemester = trimmed.replace("Εξάμηνο:", "").trim();
                         return;
                     }
+
+                    // Εδώ ψάχνουμε για τον κωδικό και μετά για έναν αριθμό με κόμμα/τελεία
+                    const codeMatch = trimmed.match(/([A-ZΑ-Ω]{2}\d{3}[A-ZΑ-Ω]?\d{0,2})/);
+                    const gradeMatch = trimmed.match(/(\d{1,2}[.,]\d{1,2}|\d{1,2})/);
+
+                    if (codeMatch && gradeMatch) {
+                        const code = codeMatch[1];
+                        const gradeStr = gradeMatch[1];
+                        const numericGrade = parseFloat(gradeStr.replace(',', '.'));
+                        
+                        // Παίρνουμε τον τίτλο αφαιρώντας τον κωδικό και τον βαθμό
+                        let title = trimmed.replace(code, '').replace(gradeStr, '').trim();
+                        
+                        allCourses.push({ 
+                            code: code, 
+                            title: title, 
+                            grade: gradeStr, 
+                            numericGrade: numericGrade, 
+                            semester: currentSemester, 
+                            period: "Εξεταστική" 
+                        });
+                    }
+                });
+
+                if (allCourses.length > 0) {
+                    document.getElementById('inputSection').classList.add('hidden');
+                    document.getElementById('filterSection').classList.remove('hidden');
+                    document.getElementById('gradesContainer').classList.remove('hidden');
+                    renderGrades();
+                } else {
+                    alert('Δεν βρέθηκαν βαθμοί. Έλεγξε αν έβαλες κωδικό μαθήματος και βαθμό.');
+                }
+            } catch (error) { alert('Σφάλμα: ' + error.message); }
+        }
+
 const gradeRegex = /(\d{1,2}[.,]\d{1,2}|\d{1,2})\s+(E[A-Z0-9Α-ΩΞΣ]*)/;
 
                     const codeRegex = /([A-ZΑ-Ω]{2}\d{3}[A-ZΑ-Ω]?\d{0,2})/;
