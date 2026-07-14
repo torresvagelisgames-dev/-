@@ -9,68 +9,71 @@
     <div class="max-w-md mx-auto">
         <h1 class="text-xl font-bold mb-4">Τα Μαθήματά μου</h1>
         
-        <!-- Επιλογή Ταξινόμησης -->
-        <select id="sortOrder" onchange="render()" class="w-full bg-gray-800 p-2 rounded mb-4">
-            <option value="all">Όλα μαζί</option>
+        <!-- Ταξινόμηση -->
+        <select id="sortOrder" onchange="render()" class="w-full bg-gray-800 p-2 rounded mb-4 text-white">
+            <option value="all">Όλα τα εξάμηνα</option>
             <option value="1">1ο Εξάμηνο</option>
             <option value="2">2ο Εξάμηνο</option>
-            <!-- Προσθέτεις όσα εξάμηνα θέλεις -->
+            <option value="3">3ο Εξάμηνο</option>
+            <option value="4">4ο Εξάμηνο</option>
+            <option value="5">5ο Εξάμηνο</option>
+            <option value="6">6ο Εξάμηνο</option>
+            <option value="7">7ο Εξάμηνο</option>
+            <option value="8">8ο Εξάμηνο</option>
         </select>
 
         <div id="results" class="space-y-2"></div>
     </div>
 
     <script>
-        // ΕΔΩ ΒΑΖΕΙΣ ΤΗ ΛΙΣΤΑ ΣΟΥ
         const grades = [
-    { name: "Μαθηματικά Ι", grade: 6.0, sem: 1 },
-    { name: "Μηχανική Ι", grade: 2.3, sem: 1 },
-    { name: "Μηχανολογική Σχεδίαση I", grade: 7.6, sem: 1 },
-    { name: "Προγραμματισμός Η/Υ", grade: 9.0, sem: 1 },
-    { name: "Φυσική", grade: 3.6, sem: 1 },
-    { name: "Χημεία", grade: 5.0, sem: 1 },
-    { name: "Αντοχή Υλικών", grade: 2.9, sem: 2 },
-    { name: "Ηλεκτροτεχνία", grade: 5.0, sem: 2 },
-    { name: "Μαθηματικά ΙΙ", grade: 3.0, sem: 2 },
-    { name: "Μηχανική ΙI", grade: 8.5, sem: 2 },
-    { name: "Μηχανολογική Σχεδίαση II", grade: 6.5, sem: 2 },
-    { name: "Μηχανουργική Τεχνολογία Ι", grade: 6.6, sem: 2 },
-    { name: "Εφαρμοσμένη Στατιστική", grade: 2.0, sem: 3 },
-    { name: "Θερμοδυναμική Ι", grade: 5.0, sem: 3 },
-    { name: "Μαθηματικά ΙΙI", grade: 1.0, sem: 3 },
-    { name: "Στοιχεία Μηχανών Ι", grade: 1.0, sem: 3 },
-    { name: "Τεχνολογία Υλικών", grade: 5.5, sem: 3 },
-    { name: "Αριθμητικές Μέθοδοι", grade: 5.5, sem: 3 },
-    { name: "Μετρήσεις Μεγεθών", grade: 7.0, sem: 4 },
-    { name: "Μηχανική Ρευστών Ι", grade: 1.0, sem: 4 },
-    { name: "Περιβάλλον & Ανάπτυξη", grade: 6.1, sem: 4 },
-    { name: "Στοιχεία Μηχανών ΙΙ", grade: 1.0, sem: 4 },
-    { name: "Ηλεκτρικές Μηχανές", grade: 3.5, sem: 4 },
-    { name: "Μετάδοση Θερμότητας", grade: 1.5, sem: 4 },
-    { name: "Μηχανές Εσωτ. Καύσης Ι", grade: 3.0, sem: 5 },
-    { name: "Συστήματα Αυτοματισμού", grade: 5.6, sem: 5 },
-    { name: "Βιομηχανικοί Αυτοματισμοί", grade: 0.0, sem: 5 },
-    { name: "Θέρμανση-Ψύξη-Κλιματισμός", grade: 3.9, sem: 5 },
-    { name: "Ξένη Γλώσσα", grade: 6.8, sem: 5 },
-    { name: "Τεχνικοοικονομική Ανάλυση", grade: 7.6, sem: 5 },
-    { name: "Τεχνολογία Υλικών ΙΙ", grade: 3.5, sem: 6 },
-    { name: "Ήπιες Μορφές Ενέργειας", grade: 5.8, sem: 6 },
-    { name: "Θέρμανση-Ψύξη-Κλιματισμός ΙΙ", grade: 6.0, sem: 6 },
-    { name: "Μηχανική Ρευστών ΙΙ", grade: 5.0, sem: 6 },
-    { name: "Μηχανολογικός Σχεδιασμός", grade: 6.0, sem: 6 },
-    { name: "Περιβαλλοντική Μηχανική", grade: 7.5, sem: 6 },
-    { name: "Έξυπνα Ενεργειακά Κτήρια", grade: 9.5, sem: 7 },
-    { name: "Θερμικές Στροβιλομηχανές", grade: 6.0, sem: 7 },
-    { name: "Μηχανές Εσωτ. Καύσης ΙΙ", grade: 5.5, sem: 7 },
-    { name: "Μηχανολογικές Εγκαταστάσεις", grade: 6.5, sem: 7 },
-    { name: "Τεχνητά Νευρωνικά Δίκτυα", grade: 8.0, sem: 7 },
-    { name: "Φαινόμενα Μεταφοράς", grade: 4.0, sem: 8 },
-    { name: "Αποθήκευση Ενέργειας", grade: 8.8, sem: 8 },
-    { name: "Ατμοσφαιρική Ρύπανση", grade: 5.5, sem: 8 },
-    { name: "Θερμικές Εγκαταστάσεις", grade: 3.0, sem: 8 },
-    { name: "Υβριδικά Συστήματα", grade: 7.8, sem: 8 }
-];
-;
+            { name: "Μαθηματικά Ι", grade: 6.0, sem: 1 },
+            { name: "Μηχανική Ι", grade: 2.3, sem: 1 },
+            { name: "Μηχανολογική Σχεδίαση I", grade: 7.6, sem: 1 },
+            { name: "Προγραμματισμός Η/Υ", grade: 9.0, sem: 1 },
+            { name: "Φυσική", grade: 3.6, sem: 1 },
+            { name: "Χημεία", grade: 5.0, sem: 1 },
+            { name: "Αντοχή Υλικών", grade: 2.9, sem: 2 },
+            { name: "Ηλεκτροτεχνία", grade: 5.0, sem: 2 },
+            { name: "Μαθηματικά ΙΙ", grade: 3.0, sem: 2 },
+            { name: "Μηχανική ΙI", grade: 8.5, sem: 2 },
+            { name: "Μηχανολογική Σχεδίαση II", grade: 6.5, sem: 2 },
+            { name: "Μηχανουργική Τεχνολογία Ι", grade: 6.6, sem: 2 },
+            { name: "Εφαρμοσμένη Στατιστική", grade: 2.0, sem: 3 },
+            { name: "Θερμοδυναμική Ι", grade: 5.0, sem: 3 },
+            { name: "Μαθηματικά ΙΙI", grade: 1.0, sem: 3 },
+            { name: "Στοιχεία Μηχανών Ι", grade: 1.0, sem: 3 },
+            { name: "Τεχνολογία Υλικών", grade: 5.5, sem: 3 },
+            { name: "Αριθμητικές Μέθοδοι", grade: 5.5, sem: 3 },
+            { name: "Μετρήσεις Μεγεθών", grade: 7.0, sem: 4 },
+            { name: "Μηχανική Ρευστών Ι", grade: 1.0, sem: 4 },
+            { name: "Περιβάλλον & Ανάπτυξη", grade: 6.1, sem: 4 },
+            { name: "Στοιχεία Μηχανών ΙΙ", grade: 1.0, sem: 4 },
+            { name: "Ηλεκτρικές Μηχανές", grade: 3.5, sem: 4 },
+            { name: "Μετάδοση Θερμότητας", grade: 1.5, sem: 4 },
+            { name: "Μηχανές Εσωτ. Καύσης Ι", grade: 3.0, sem: 5 },
+            { name: "Συστήματα Αυτοματισμού", grade: 5.6, sem: 5 },
+            { name: "Βιομηχανικοί Αυτοματισμοί", grade: 0.0, sem: 5 },
+            { name: "Θέρμανση-Ψύξη-Κλιματισμός", grade: 3.9, sem: 5 },
+            { name: "Ξένη Γλώσσα", grade: 6.8, sem: 5 },
+            { name: "Τεχνικοοικονομική Ανάλυση", grade: 7.6, sem: 5 },
+            { name: "Τεχνολογία Υλικών ΙΙ", grade: 3.5, sem: 6 },
+            { name: "Ήπιες Μορφές Ενέργειας", grade: 5.8, sem: 6 },
+            { name: "Θέρμανση-Ψύξη-Κλιματισμός ΙΙ", grade: 6.0, sem: 6 },
+            { name: "Μηχανική Ρευστών ΙΙ", grade: 5.0, sem: 6 },
+            { name: "Μηχανολογικός Σχεδιασμός", grade: 6.0, sem: 6 },
+            { name: "Περιβαλλοντική Μηχανική", grade: 7.5, sem: 6 },
+            { name: "Έξυπνα Ενεργειακά Κτήρια", grade: 9.5, sem: 7 },
+            { name: "Θερμικές Στροβιλομηχανές", grade: 6.0, sem: 7 },
+            { name: "Μηχανές Εσωτ. Καύσης ΙΙ", grade: 5.5, sem: 7 },
+            { name: "Μηχανολογικές Εγκαταστάσεις", grade: 6.5, sem: 7 },
+            { name: "Τεχνητά Νευρωνικά Δίκτυα", grade: 8.0, sem: 7 },
+            { name: "Φαινόμενα Μεταφοράς", grade: 4.0, sem: 8 },
+            { name: "Αποθήκευση Ενέργειας", grade: 8.8, sem: 8 },
+            { name: "Ατμοσφαιρική Ρύπανση", grade: 5.5, sem: 8 },
+            { name: "Θερμικές Εγκαταστάσεις", grade: 3.0, sem: 8 },
+            { name: "Υβριδικά Συστήματα", grade: 7.8, sem: 8 }
+        ];
 
         function render() {
             const filter = document.getElementById('sortOrder').value;
@@ -83,12 +86,14 @@
                 const color = item.grade >= 5 ? 'text-green-400' : 'text-red-500';
                 container.innerHTML += `
                     <div class="bg-gray-900 p-3 rounded-lg flex justify-between border border-gray-800">
-                        <span>${item.name}</span>
+                        <span class="truncate pr-2">${item.name}</span>
                         <span class="font-bold ${color}">${item.grade.toFixed(1)}</span>
                     </div>`;
             });
         }
-        render();
+        
+        // Αυτό το καλεί αυτόματα μόλις φορτώσει η σελίδα
+        window.onload = render;
     </script>
 </body>
 </html>
